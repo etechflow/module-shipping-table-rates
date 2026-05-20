@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<!--
+    Database schema for ETechFlow_ShippingTableRates.
+
+    Three tables:
+
+    1. etechflow_str_method   — the shipping method definitions (carrier-equivalent).
+                                A merchant might have 5 methods like "UK Standard",
+                                "UK Next Day", "EU Economy", "EU Express", "Worldwide".
+                                Each method has its own admin code + label per store view.
+
+    2. etechflow_str_rate     — the actual rate rules. Many-to-one with method.
+                                Each row is a single rule: "if dest=UK AND weight 0-5kg AND qty 1-3,
+                                charge base £4.99 + per-product £0.50 + per-kg £0.30".
+
+    3. etechflow_str_version  — versioning differentiator. Every method save snapshots
+                                the prior state into a JSON blob, so a one-click rollback
+                                works even after CSV imports / mass edits.
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <table name="etechflow_str_method"
+           resource="default"
+           engine="innodb"
+           comment="ETechFlow Shipping Table Rates — shipping method definitions">
+        <column xsi:type="int" name="method_id" unsigned="true" nullable="false" identity="true"
+                comment="Internal method ID"/>
+        <column xsi:type="varchar" name="code" length="64" nullable="false"
+                comment="Stable machine code (e.g. 'uk_next_day'); used in carrier_method composition"/>
+        <column xsi:type="varchar" name="name" length="255" nullable="false"
+                comment="Admin/default-store label (per-store-view labels live in *_method_label)"/>
+        <column xsi:type="boolean" name="is_active" nullable="false" default="true"
+                comment="Method on/off"/>
+        <column xsi:type="int" name="sort_order" unsigned="true" nullable="false" default="0"
+                comment="Display order at checkout"/>
+        <column xsi:type="decimal" name="min_rate" scale="4" precision="12" nullable="true"
+                comment="Minimum charge clamp (NULL = no min)"/>
+        <column xsi:type="decimal" name="max_rate" scale="4" precision="12" nullable="true"
+                comment="Maximum charge clamp (NULL = no max)"/>
+        <column xsi:type="varchar" name="multi_type_mode" length="16" nullable="false" default="sum"
+                comment="When cart has multiple shipping types: 'sum' | 'min' | 'max'"/>
+        <column xsi:type="boolean" name="free_shipping_compatible" nullable="false" default="true"
+                comment="Honour Magento native free-shipping promotion (set false to ignore promo for this method)"/>
+        <column xsi:type="boolean" name="use_price_after_discount" nullable="false" default="false"
+                comment="When TRUE, the cart subtotal used for the subtotal_from/_to filter AND the rate_percent formula term is the post-discount subtotal. When FALSE (default), uses the pre-discount subtotal. Mirrors Amasty's Use Price After Discount flag (per-method, not per-rate)."/>
+        <column xsi:type="boolean" name="use_price_including_tax" nullable="false" default="false"
+                comment="When TRUE, the cart subtotal used by this method includes tax. When FALSE (default), the subtotal is the pre-tax amount. Combines with use_price_after_discount for the four subtotal modes Amasty exposes."/>
+        <column xsi:type="text" name="ship_for_free_types" nullable="true"
+                comment="Comma-separated lowercase shipping_type values that this method should ship at zero cost. Per-shipping-type free-shipping override: when a matching rate's shipping_type appears in this list, that group's cost contribution is zeroed before the multi-type aggregation. Wildcard rates (NULL shipping_type) are unaffected. NULL/empty = no overrides. Mirrors Amasty's 'Ship These Shipping Types for Free' multiselect."/>
+        <column xsi:type="text" name="store_view_ids" nullable="true"
+                comment="Method-level store-view scope. Comma-separated list of Magento store IDs this method applies to. NULL = applies to ALL store views. RateMatcher short-circuits methods whose scope doesn't match the cart's store. Mirrors Amasty's per-method 'Visible in Store View' setting."/>
+        <column xsi:type="text" name="customer_group_ids" nullable="true"
+                comment="Method-level customer-group scope. Comma-separated list of customer-group IDs this method applies to. NULL = applies to ALL customer groups. Distinct from etechflow_str_rate.customer_group_id which is the per-rate filter; this column is the per-METHOD scope evaluated before any rates are even loaded."/>
+        <column xsi:type="boolean" name="use_volumetric_weight" nullable="false" default="false"
+                comment="When TRUE, RateMatcher computes a 'chargeable weight' = max(cart_weight, volumetric_cm3 / volumetric_divisor) and uses it for both the weight-range filter and the per-kg formula term. When FALSE (default), cart_weight is used unchanged. Mirrors Amasty's per-method 'Use Volumetric Weight' flag."/>
+        <column xsi:type="decimal" name="volumetric_divisor" scale="2" precision="10" nullable="true"
+                comment="Per-method volumetric-weight divisor (cm³ per kg). Common courier values: DHL/FedEx air 5000; FedEx ground 6000; Royal Mail Tracked 5000. NULL = use the carrier-default 5000. Only consulted when use_volumetric_weight=TRUE."/>
+        <column xsi:type="text" name="settings_json" nullable="true"
+                comment="Method-level JSON settings — volumetric weight config, customer-group restrictions, store-view labels, etc."/>
+        <column xsi:type="timestamp" name="created_at" default="CURRENT_TIMESTAMP" nullable="false"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" default="CURRENT_TIMESTAMP" nullable="false"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="method_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_STR_METHOD_CODE">
+            <column name="code"/>
+        </constraint>
+        <index referenceId="ETECHFLOW_STR_METHOD_ACTIVE" indexType="btree">
+            <column name="is_active"/>
+            <column name="sort_order"/>
+        </index>
+    </table>
+
+    <table name="etechflow_str_rate"
+           resource="default"
+           engine="innodb"
+           comment="ETechFlow Shipping Table Rates — individual rate rules">
+        <column xsi:type="int" name="rate_id" unsigned="true" nullable="false" identity="true"
+                comment="Internal rate ID"/>
+        <column xsi:type="int" name="method_id" unsigned="true" nullable="false"
+                comment="FK to etechflow_str_method.method_id"/>
+        <column xsi:type="varchar" name="country_code" length="2" nullable="true"
+                comment="ISO 3166-1 alpha-2 country (NULL = match any country)"/>
+        <column xsi:type="varchar" name="region_code" length="32" nullable="true"
+                comment="State / region code (NULL = match any)"/>
+        <column xsi:type="varchar" name="city" length="128" nullable="true"
+                comment="City name (NULL = match any)"/>
+        <column xsi:type="varchar" name="zip_from" length="32" nullable="true"
+                comment="Postcode range start (NULL = no constraint); alphanumeric — UK/CA postcodes supported"/>
+        <column xsi:type="varchar" name="zip_to" length="32" nullable="true"
+                comment="Postcode range end (NULL = no constraint)"/>
+        <column xsi:type="decimal" name="weight_from" scale="4" precision="12" nullable="true"
+                comment="Cart weight range start in store unit (NULL = no min)"/>
+        <column xsi:type="decimal" name="weight_to" scale="4" precision="12" nullable="true"
+                comment="Cart weight range end (NULL = no max)"/>
+        <column xsi:type="int" name="qty_from" unsigned="true" nullable="true"
+                comment="Cart item qty range start"/>
+        <column xsi:type="int" name="qty_to" unsigned="true" nullable="true"
+                comment="Cart item qty range end"/>
+        <column xsi:type="decimal" name="subtotal_from" scale="4" precision="12" nullable="true"
+                comment="Cart subtotal range start"/>
+        <column xsi:type="decimal" name="subtotal_to" scale="4" precision="12" nullable="true"
+                comment="Cart subtotal range end"/>
+        <column xsi:type="varchar" name="customer_group_id" length="32" nullable="true"
+                comment="Comma-separated customer group IDs (NULL = match all)"/>
+        <column xsi:type="varchar" name="shipping_type" length="64" nullable="true"
+                comment="Value of product shipping_type attribute (NULL = match all)"/>
+        <column xsi:type="decimal" name="rate_base" scale="4" precision="12" nullable="false" default="0"
+                comment="Base flat charge for this rule"/>
+        <column xsi:type="decimal" name="rate_per_product" scale="4" precision="12" nullable="false" default="0"
+                comment="Additional charge per product/item in cart"/>
+        <column xsi:type="decimal" name="rate_per_kg" scale="4" precision="12" nullable="false" default="0"
+                comment="Additional charge per unit of weight (kg or store unit)"/>
+        <column xsi:type="decimal" name="rate_percent" scale="4" precision="6" nullable="false" default="0"
+                comment="Additional percentage of cart subtotal (0-100)"/>
+        <column xsi:type="decimal" name="weight_unit_conversion_rate" scale="6" precision="12" nullable="false" default="1.000000"
+                comment="Per-rate weight unit conversion factor. cart_weight is DIVIDED by this before the per-kg formula. 1 = no conversion. 2.2046 converts lbs→kg, 0.4536 converts kg→lbs. Mirrors Amasty's Weight Unit Conversion Rate field."/>
+        <column xsi:type="int" name="delivery_days" unsigned="true" nullable="true"
+                comment="Estimated delivery days for this rate — integer days, used for the legacy '(X days)' suffix and for choosing the longest-delivery winner during {day} template interpolation"/>
+        <column xsi:type="varchar" name="delivery_label" length="128" nullable="true"
+                comment="Free-text label used to substitute the {day} placeholder in the method name (e.g. 'to Canada, 5 working days'). Overrides the integer delivery_days for display. NULL = fall back to integer delivery_days, or empty if both unset."/>
+        <column xsi:type="varchar" name="name_delivery" length="128" nullable="true"
+                comment="Free-text label used to substitute the {name} placeholder in the method name (e.g. 'Royal Mail Tracked 24'). NULL = empty substitution."/>
+        <column xsi:type="text" name="comment" nullable="true"
+                comment="Optional comment displayed under the method at checkout (safe HTML allowed)"/>
+        <column xsi:type="int" name="sort_order" unsigned="true" nullable="false" default="0"
+                comment="Order when multiple rates match — lower = wins. 0 = use deterministic fallback."/>
+        <column xsi:type="boolean" name="is_active" nullable="false" default="true"
+                comment="Per-rule on/off without deleting the row"/>
+        <column xsi:type="timestamp" name="created_at" default="CURRENT_TIMESTAMP" nullable="false"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" default="CURRENT_TIMESTAMP" nullable="false"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="rate_id"/>
+        </constraint>
+        <constraint xsi:type="foreign"
+                    referenceId="ETECHFLOW_STR_RATE_METHOD_ID_METHOD_ID"
+                    table="etechflow_str_rate"
+                    column="method_id"
+                    referenceTable="etechflow_str_method"
+                    referenceColumn="method_id"
+                    onDelete="CASCADE"/>
+        <!-- Composite index for the hot-path lookup at checkout (most-frequent filter combination) -->
+        <index referenceId="ETECHFLOW_STR_RATE_LOOKUP" indexType="btree">
+            <column name="method_id"/>
+            <column name="is_active"/>
+            <column name="country_code"/>
+            <column name="region_code"/>
+        </index>
+        <index referenceId="ETECHFLOW_STR_RATE_WEIGHT" indexType="btree">
+            <column name="weight_from"/>
+            <column name="weight_to"/>
+        </index>
+        <index referenceId="ETECHFLOW_STR_RATE_SHIPPING_TYPE" indexType="btree">
+            <column name="shipping_type"/>
+        </index>
+    </table>
+
+    <table name="etechflow_str_version"
+           resource="default"
+           engine="innodb"
+           comment="ETechFlow Shipping Table Rates — versioned snapshots for rollback (differentiator)">
+        <column xsi:type="int" name="version_id" unsigned="true" nullable="false" identity="true"
+                comment="Internal version ID"/>
+        <column xsi:type="int" name="method_id" unsigned="true" nullable="false"
+                comment="FK to etechflow_str_method.method_id"/>
+        <column xsi:type="varchar" name="label" length="128" nullable="false"
+                comment="Merchant-supplied label ('Q3 2026 rates', 'pre-Black-Friday') or auto-generated timestamp"/>
+        <column xsi:type="text" name="snapshot_json" nullable="false"
+                comment="Full method + rates state at version time — JSON blob, restored on rollback"/>
+        <column xsi:type="varchar" name="created_by" length="128" nullable="true"
+                comment="Admin username who created the version"/>
+        <column xsi:type="timestamp" name="created_at" default="CURRENT_TIMESTAMP" nullable="false"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="version_id"/>
+        </constraint>
+        <constraint xsi:type="foreign"
+                    referenceId="ETECHFLOW_STR_VERSION_METHOD_ID_METHOD_ID"
+                    table="etechflow_str_version"
+                    column="method_id"
+                    referenceTable="etechflow_str_method"
+                    referenceColumn="method_id"
+                    onDelete="CASCADE"/>
+        <index referenceId="ETECHFLOW_STR_VERSION_METHOD_CREATED" indexType="btree">
+            <column name="method_id"/>
+            <column name="created_at"/>
+        </index>
+    </table>
+
+</schema>

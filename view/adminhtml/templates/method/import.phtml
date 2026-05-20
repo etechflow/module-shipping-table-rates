@@ -1,0 +1,57 @@
+<?php
+/**
+ * @var \ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Import $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$methodId = $block->getMethodId();
+if (!$methodId) {
+    // No method saved yet — show a hint instead of broken upload form
+    return;
+}
+?>
+<div class="entry-edit" style="margin-top:24px;">
+    <div class="entry-edit-head admin__collapsible-block-wrapper">
+        <span class="entry-edit-head-link"></span>
+        <strong class="admin__collapsible-title"><?= $escaper->escapeHtml(__('Import / Export Rates (CSV)')) ?></strong>
+    </div>
+    <fieldset class="admin__fieldset">
+        <p class="note" style="margin-bottom:16px;">
+            <?= $escaper->escapeHtml(__('Upload a CSV of rate rules. The column order in the template matches the export — round-trips cleanly. Each row is validated before any are saved; errors are reported per-row.')) ?>
+        </p>
+
+        <form action="<?= $escaper->escapeUrl($block->getImportFormUrl()) ?>" method="post" enctype="multipart/form-data" style="margin-bottom:24px;">
+            <?= $block->getBlockHtml('formkey') ?>
+            <div class="admin__field _required">
+                <label class="admin__field-label" for="csv_file"><span><?= $escaper->escapeHtml(__('CSV File')) ?></span></label>
+                <div class="admin__field-control">
+                    <input type="file" id="csv_file" name="csv_file" accept=".csv,text/csv" required="required"/>
+                </div>
+            </div>
+            <div class="admin__field">
+                <label class="admin__field-label" for="import_mode"><span><?= $escaper->escapeHtml(__('Import Mode')) ?></span></label>
+                <div class="admin__field-control">
+                    <select id="import_mode" name="import_mode">
+                        <option value="replace"><?= $escaper->escapeHtml(__('Replace — delete current rates first')) ?></option>
+                        <option value="append"><?= $escaper->escapeHtml(__('Append — keep current rates, add new ones')) ?></option>
+                    </select>
+                </div>
+            </div>
+            <div class="admin__field">
+                <div class="admin__field-control">
+                    <button type="submit" class="action-secondary">
+                        <span><?= $escaper->escapeHtml(__('Upload + Import')) ?></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <hr/>
+
+        <p class="note" style="margin-top:16px;">
+            <?= $escaper->escapeHtml(__('Export the current rates to a CSV file. The file format is identical to the import format — edit in your spreadsheet editor of choice, then re-upload.')) ?>
+        </p>
+        <a href="<?= $escaper->escapeUrl($block->getExportUrl()) ?>" class="action-secondary">
+            <span><?= $escaper->escapeHtml(__('Download CSV')) ?></span>
+        </a>
+    </fieldset>
+</div>

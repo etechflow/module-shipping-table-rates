@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="etechflow" translate="label" sortOrder="400">
+            <label>eTechFlow</label>
+        </tab>
+        <section id="etechflow_shippingtablerates"
+                 translate="label"
+                 type="text"
+                 sortOrder="130"
+                 showInDefault="1"
+                 showInWebsite="1"
+                 showInStore="1">
+            <label>Shipping Table Rates</label>
+            <tab>etechflow</tab>
+            <resource>ETechFlow_ShippingTableRates::config</resource>
+
+            <!-- Status banner — first thing the merchant sees -->
+            <group id="module_status"
+                   translate="label"
+                   type="text"
+                   sortOrder="1"
+                   showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>Module Status</label>
+                <frontend_model>ETechFlow\ShippingTableRates\Block\Adminhtml\System\Config\ModuleStatus</frontend_model>
+            </group>
+
+            <group id="license"
+                   translate="label"
+                   type="text"
+                   sortOrder="5"
+                   showInDefault="1"
+                   showInWebsite="0"
+                   showInStore="0">
+                <label>License</label>
+                <field id="production_environment"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="5"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>Production Environment</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> = this is your live site. The module checks the licence
+                        key against the current domain. If invalid, the module silently disables itself.<br/>
+                        <strong>No</strong> = this is dev/staging. The module runs at full features
+                        without a licence — use this on non-standard dev domains the auto-detector misses.<br/>
+                        Default: Yes.
+                    ]]></comment>
+                </field>
+                <field id="license_key"
+                       translate="label comment"
+                       type="text"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>License Key</label>
+                    <comment><![CDATA[
+                        Paste the key from your purchase email. Bound to the domain you provided at checkout.<br/>
+                        Auto-bypassed for development hosts. <code>www.</code> prefix is normalised.
+                    ]]></comment>
+                </field>
+            </group>
+
+            <group id="general"
+                   translate="label"
+                   type="text"
+                   sortOrder="10"
+                   showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>General Settings</label>
+                <field id="enabled"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Enable Module</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        Master switch.<br/>
+                        <strong>Yes</strong> = configured shipping methods are evaluated at checkout
+                        and offered to the customer when their rate rules match.<br/>
+                        <strong>No</strong> = no methods from this module appear at checkout. Useful
+                        for quickly toggling everything off without deleting methods.
+                    ]]></comment>
+                </field>
+                <field id="use_discounted_price"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Use Discounted Subtotal for Rate Lookup</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> (default) = rate rules match against the cart subtotal
+                        AFTER promo/coupon discounts. Matches Magento's native behaviour.<br/>
+                        <strong>No</strong> = rules match against the ORIGINAL subtotal. Use this if
+                        you want shipping cost determined by the un-discounted product value.
+                    ]]></comment>
+                </field>
+                <field id="price_includes_tax"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="30"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Configured Rates Include Tax</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        Should the rate amounts you enter in admin be treated as tax-inclusive
+                        (Yes) or net of tax (No)? Affects how Magento displays + rounds them.
+                        Most EU/UK merchants set Yes; most US merchants set No.
+                    ]]></comment>
+                </field>
+                <field id="conflict_detection"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="40"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Detect Overlapping Rules in Admin</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> (default) = when you save a rate, the admin
+                        scans for other rules that could match the same cart and warns you.
+                        Surfaces conflicts before a real customer hits them at checkout.<br/>
+                        <strong>No</strong> = skip the check (small perf saving when managing
+                        thousands of rules). Conflicts will then only surface at the live cart.
+                    ]]></comment>
+                </field>
+            </group>
+        </section>
+
+        <!-- Carrier-level config under Sales → Shipping Methods. Magento's
+             native home for shipping-carrier toggles (active flag, country
+             restrictions, sort order). Our OWN module config lives in the
+             section above. Merchants typically don't need to touch this. -->
+        <section id="carriers">
+            <group id="etechflow_str"
+                   translate="label"
+                   type="text"
+                   sortOrder="105"
+                   showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>eTechFlow Shipping Table Rates</label>
+                <field id="active"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Enabled at Checkout</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        Carrier-level toggle. The module's master kill-switch under
+                        eTechFlow → Shipping Table Rates → General Settings → Enable Module
+                        also has to be Yes for any rates to appear.
+                    ]]></comment>
+                </field>
+                <field id="title"
+                       translate="label"
+                       type="text"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Carrier Title</label>
+                    <comment>Customer-facing carrier group label at checkout (e.g. "Shipping" or your brand name).</comment>
+                </field>
+                <field id="sallowspecific"
+                       translate="label"
+                       type="select"
+                       sortOrder="90"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="0">
+                    <label>Ship to Applicable Countries</label>
+                    <source_model>Magento\Shipping\Model\Config\Source\Allspecificcountries</source_model>
+                </field>
+                <field id="specificcountry"
+                       translate="label"
+                       type="multiselect"
+                       sortOrder="91"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="0">
+                    <label>Ship to Specific Countries</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="showmethod"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="92"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="0">
+                    <label>Show Method If Not Applicable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If Yes, the carrier appears with an error message instead of being hidden when no rates match. Useful while debugging rate rules.</comment>
+                </field>
+                <field id="specificerrmsg"
+                       translate="label"
+                       type="textarea"
+                       sortOrder="93"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Displayed Error Message</label>
+                </field>
+                <field id="sort_order"
+                       translate="label comment"
+                       type="text"
+                       sortOrder="100"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="0">
+                    <label>Sort Order</label>
+                    <comment>Position in the checkout shipping methods list. Lower = higher up.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

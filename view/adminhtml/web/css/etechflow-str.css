@@ -1,0 +1,282 @@
+/* ============================================================================
+   ETechFlow_ShippingTableRates — admin styles
+   ----------------------------------------------------------------------------
+   Single source of truth for the visual styling of the admin panels we add
+   under the method edit page (rates table, simulator widget, version
+   history, CSV import). Replaces the inline styles that lived in the
+   phtml templates pre-v1.0.0.
+
+   Class naming: `etf-str-` prefix + BEM-ish (block__element--modifier).
+   Scope: admin-only. Storefront templates use a separate file (n/a in v1.0).
+   ============================================================================ */
+
+/* ---------- Panel layout (shared by all method-edit panels) ---------- */
+
+.etf-str-panel {
+    margin-top: 24px;
+}
+
+.etf-str-panel__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.etf-str-panel__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #303030;
+}
+
+.etf-str-panel__hint {
+    color: #888;
+    font-size: 13px;
+    margin: 0 0 16px;
+    line-height: 1.5;
+}
+
+.etf-str-panel__count {
+    color: #888;
+    font-weight: normal;
+    font-size: 13px;
+    margin-left: 6px;
+}
+
+/* ---------- Tables ---------- */
+
+.etf-str-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.etf-str-table--compact {
+    font-size: 12px;
+}
+
+.etf-str-table thead tr {
+    background: #f5f5f5;
+}
+
+.etf-str-table th {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-weight: 600;
+}
+
+.etf-str-table--compact th {
+    padding: 6px 8px;
+}
+
+.etf-str-table td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.etf-str-table--compact td {
+    padding: 6px 8px;
+}
+
+.etf-str-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.etf-str-table__id {
+    color: #777;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.etf-str-table__mono {
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.etf-str-table__timestamp {
+    font-family: monospace;
+    font-size: 12px;
+    color: #555;
+}
+
+/* Action column buttons should sit side-by-side */
+.etf-str-table__actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.etf-str-table__inline-form {
+    display: inline-block;
+}
+
+.etf-str-table__delete-button {
+    background: none;
+    border: none;
+    color: #c62828;
+    padding: 0;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+}
+
+.etf-str-table__delete-button:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Empty states ---------- */
+
+.etf-str-empty {
+    padding: 24px;
+    text-align: center;
+    background: #fafafa;
+    border: 1px dashed #ddd;
+    border-radius: 4px;
+    color: #666;
+}
+
+.etf-str-empty__title {
+    font-weight: 600;
+    color: #555;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.etf-str-empty__hint {
+    font-size: 12px;
+    color: #999;
+}
+
+/* ---------- Status badges ---------- */
+
+.etf-str-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.etf-str-badge--success {
+    background: #e7f5ec;
+    color: #1b5e20;
+}
+
+.etf-str-badge--error {
+    background: #fce4ec;
+    color: #b71c1c;
+}
+
+.etf-str-badge--muted {
+    background: #f5f5f5;
+    color: #777;
+}
+
+.etf-str-state-active { color: #2e7d32; font-weight: 600; }
+.etf-str-state-inactive { color: #999; }
+
+/* ---------- Simulator widget ---------- */
+
+.etf-str-sim-result {
+    margin-top: 16px;
+    min-height: 0;  /* prevents layout shift when result arrives */
+}
+
+.etf-str-sim-result--loading {
+    padding: 14px 18px;
+    background: #f0f4ff;
+    border-left: 4px solid #1976d2;
+    border-radius: 4px;
+    color: #0d47a1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.etf-str-sim-result--error {
+    padding: 14px 18px;
+    background: #fce4ec;
+    border-left: 4px solid #c62828;
+    border-radius: 4px;
+    color: #b71c1c;
+}
+
+.etf-str-sim-result--empty {
+    padding: 14px 18px;
+    background: #fff8e1;
+    border-left: 4px solid #f57c00;
+    border-radius: 4px;
+    color: #5d4037;
+}
+
+/* Pure-CSS spinner — accessible (animation-pauses honoured by prefers-reduced-motion) */
+.etf-str-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #e3f2fd;
+    border-top-color: #1976d2;
+    border-radius: 50%;
+    animation: etf-str-spin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes etf-str-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .etf-str-spinner {
+        animation: none;
+        border-top-color: #1976d2;
+        border-right-color: #1976d2;  /* half-coloured ring instead of rotation */
+    }
+}
+
+/* Detail cell inside the result table */
+.etf-str-sim-detail {
+    line-height: 1.6;
+}
+
+.etf-str-sim-detail__rule {
+    font-size: 11px;
+    color: #555;
+    font-family: monospace;
+}
+
+.etf-str-sim-detail__comment {
+    font-style: italic;
+    color: #555;
+}
+
+/* ---------- Form helpers ---------- */
+
+/* Inline group of inputs (region + postcode, or weight + qty + subtotal) */
+.etf-str-field-group {
+    display: flex;
+    gap: 8px;
+}
+
+.etf-str-field-group > * {
+    flex: 1;
+}
+
+/* ---------- Notes / hints ---------- */
+
+.etf-str-note {
+    margin-top: 12px;
+    color: #888;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.etf-str-note code {
+    background: #f5f5f5;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+}

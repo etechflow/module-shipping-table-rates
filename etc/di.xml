@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Register the v1.0 CLI simulate command: bin/magento etechflow:str:simulate -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="etechflow_str_simulate"
+                      xsi:type="object">ETechFlow\ShippingTableRates\Console\Command\SimulateCommand</item>
+                <item name="etechflow_str_verify"
+                      xsi:type="object">ETechFlow\ShippingTableRates\Console\Command\VerifyCommand</item>
+                <item name="etechflow_str_perf"
+                      xsi:type="object">ETechFlow\ShippingTableRates\Console\Command\PerfCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

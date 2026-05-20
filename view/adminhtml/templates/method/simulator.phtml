@@ -1,0 +1,249 @@
+<?php
+/**
+ * @var \ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Edit\Simulator $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+if (!$block->getMethodId()) {
+    return;
+}
+
+$widgetId = 'etechflow-str-simulator-' . $block->getMethodId();
+?>
+<div class="entry-edit etf-str-panel" id="<?= $escaper->escapeHtmlAttr($widgetId) ?>">
+    <div class="entry-edit-head etf-str-panel__head">
+        <strong class="admin__collapsible-title etf-str-panel__title">
+            <?= $escaper->escapeHtml(__('Live Cart Simulator')) ?>
+        </strong>
+    </div>
+    <fieldset class="admin__fieldset">
+        <p class="etf-str-panel__hint">
+            <?= $escaper->escapeHtml(__('Plug in a hypothetical cart and see which methods + rates would apply, with the full formula breakdown. Beats driving a real checkout to debug rate misses.')) ?>
+        </p>
+
+        <div class="admin__field _required">
+            <label class="admin__field-label" for="<?= $escaper->escapeHtmlAttr($widgetId) ?>-country">
+                <span><?= $escaper->escapeHtml(__('Country')) ?></span>
+            </label>
+            <div class="admin__field-control">
+                <select id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-country" class="admin__control-select">
+                    <?php foreach ($block->getCountries() as $option): ?>
+                        <option value="<?= $escaper->escapeHtmlAttr($option['value']) ?>"
+                                <?= $option['value'] === 'GB' ? 'selected="selected"' : '' ?>>
+                            <?= $escaper->escapeHtml($option['label']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="admin__field">
+            <label class="admin__field-label"><span><?= $escaper->escapeHtml(__('Region / Postcode')) ?></span></label>
+            <div class="admin__field-control">
+                <div class="etf-str-field-group">
+                    <input type="text" id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-region"
+                           class="admin__control-text"
+                           placeholder="<?= $escaper->escapeHtmlAttr(__('Region / State')) ?>"
+                           aria-label="<?= $escaper->escapeHtmlAttr(__('Region or State')) ?>"/>
+                    <input type="text" id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-postcode"
+                           class="admin__control-text"
+                           placeholder="<?= $escaper->escapeHtmlAttr(__('Postcode')) ?>"
+                           aria-label="<?= $escaper->escapeHtmlAttr(__('Postcode')) ?>"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin__field _required">
+            <label class="admin__field-label"><span><?= $escaper->escapeHtml(__('Cart Totals')) ?></span></label>
+            <div class="admin__field-control">
+                <div class="etf-str-field-group">
+                    <input type="number" step="0.01" id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-weight"
+                           class="admin__control-text"
+                           placeholder="<?= $escaper->escapeHtmlAttr(__('Weight (kg)')) ?>"
+                           value="1.0"
+                           aria-label="<?= $escaper->escapeHtmlAttr(__('Cart weight')) ?>"/>
+                    <input type="number" step="1" id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-qty"
+                           class="admin__control-text"
+                           placeholder="<?= $escaper->escapeHtmlAttr(__('Qty')) ?>"
+                           value="1"
+                           aria-label="<?= $escaper->escapeHtmlAttr(__('Cart item quantity')) ?>"/>
+                    <input type="number" step="0.01" id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-subtotal"
+                           class="admin__control-text"
+                           placeholder="<?= $escaper->escapeHtmlAttr(__('Subtotal')) ?>"
+                           value="50.00"
+                           aria-label="<?= $escaper->escapeHtmlAttr(__('Cart subtotal')) ?>"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin__field">
+            <label class="admin__field-label" for="<?= $escaper->escapeHtmlAttr($widgetId) ?>-customer-group">
+                <span><?= $escaper->escapeHtml(__('Customer Group')) ?></span>
+            </label>
+            <div class="admin__field-control">
+                <select id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-customer-group" class="admin__control-select">
+                    <?php foreach ($block->getCustomerGroups() as $option): ?>
+                        <option value="<?= $escaper->escapeHtmlAttr((string) $option['value']) ?>">
+                            <?= $escaper->escapeHtml($option['label']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="admin__field">
+            <label class="admin__field-label" for="<?= $escaper->escapeHtmlAttr($widgetId) ?>-shipping-types">
+                <span><?= $escaper->escapeHtml(__('Shipping Types in Cart')) ?></span>
+            </label>
+            <div class="admin__field-control">
+                <input type="text" id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-shipping-types"
+                       class="admin__control-text"
+                       placeholder="<?= $escaper->escapeHtmlAttr(__('e.g. fragile,standard (comma-separated; leave empty if none)')) ?>"
+                       aria-label="<?= $escaper->escapeHtmlAttr(__('Shipping types in cart')) ?>"/>
+            </div>
+        </div>
+
+        <div class="admin__field">
+            <div class="admin__field-control">
+                <button type="button"
+                        id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-run"
+                        class="action-secondary">
+                    <span><?= $escaper->escapeHtml(__('Simulate This Cart')) ?></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Result region — aria-live so screen readers announce when the result arrives -->
+        <div id="<?= $escaper->escapeHtmlAttr($widgetId) ?>-result"
+             class="etf-str-sim-result"
+             role="region"
+             aria-live="polite"
+             aria-busy="false"
+             aria-label="<?= $escaper->escapeHtmlAttr(__('Simulation result')) ?>"></div>
+    </fieldset>
+</div>
+
+<script>
+(function() {
+    var widgetId   = <?= json_encode($widgetId) ?>;
+    var simulateUrl = <?= json_encode($block->getSimulateUrl()) ?>;
+    var formKey    = <?= json_encode($block->getFormKey()) ?>;
+    var methodId   = <?= (int) $block->getMethodId() ?>;
+    var labels = {
+        loading:   <?= json_encode(__('Running simulation...')->render()) ?>,
+        match:     <?= json_encode(__('MATCH')->render()) ?>,
+        noMatch:   <?= json_encode(__('NO MATCH')->render()) ?>,
+        method:    <?= json_encode(__('Method')->render()) ?>,
+        result:    <?= json_encode(__('Result')->render()) ?>,
+        cost:      <?= json_encode(__('Cost')->render()) ?>,
+        detail:    <?= json_encode(__('Detail')->render()) ?>,
+        eta:       <?= json_encode(__('ETA')->render()) ?>,
+        days:      <?= json_encode(__('day(s)')->render()) ?>,
+        noRule:    <?= json_encode(__('No rate rule satisfies the cart.')->render()) ?>,
+        noMethods: <?= json_encode(__('No methods configured.')->render()) ?>,
+        error:     <?= json_encode(__('Simulation failed:')->render()) ?>,
+        errorPrefix: <?= json_encode(__('Error:')->render()) ?>,
+    };
+
+    function $(id) { return document.getElementById(widgetId + '-' + id); }
+    function getResultEl() { return document.getElementById(widgetId + '-result'); }
+
+    $('run').addEventListener('click', function() {
+        var resultEl = getResultEl();
+        var runBtn   = $('run');
+
+        // Loading state
+        resultEl.setAttribute('aria-busy', 'true');
+        resultEl.className = 'etf-str-sim-result etf-str-sim-result--loading';
+        resultEl.innerHTML =
+            '<span class="etf-str-spinner" role="presentation" aria-hidden="true"></span>' +
+            '<span>' + escapeHtml(labels.loading) + '</span>';
+        runBtn.disabled = true;
+
+        var body = new FormData();
+        body.append('form_key', formKey);
+        body.append('method_id', methodId);
+        body.append('country', $('country').value);
+        body.append('region', $('region').value);
+        body.append('postcode', $('postcode').value);
+        body.append('weight', $('weight').value);
+        body.append('qty', $('qty').value);
+        body.append('subtotal', $('subtotal').value);
+        body.append('customer_group', $('customer-group').value);
+        body.append('shipping_types', $('shipping-types').value);
+
+        fetch(simulateUrl, { method: 'POST', credentials: 'same-origin', body: body })
+            .then(function(r) { return r.json(); })
+            .then(function(data) { renderResult(resultEl, data); })
+            .catch(function(err) { renderError(resultEl, err); })
+            .finally(function() {
+                resultEl.setAttribute('aria-busy', 'false');
+                runBtn.disabled = false;
+            });
+    });
+
+    function renderResult(el, data) {
+        if (!data.success) {
+            el.className = 'etf-str-sim-result etf-str-sim-result--error';
+            el.innerHTML = escapeHtml(labels.errorPrefix) + ' ' + escapeHtml(data.error || 'unknown');
+            return;
+        }
+        if (!data.results || data.results.length === 0) {
+            el.className = 'etf-str-sim-result etf-str-sim-result--empty';
+            el.innerHTML = escapeHtml(labels.noMethods);
+            return;
+        }
+
+        el.className = 'etf-str-sim-result';
+
+        var html = '<table class="etf-str-table" role="table">';
+        html += '<thead><tr>' +
+                '<th scope="col">' + escapeHtml(labels.method) + '</th>' +
+                '<th scope="col">' + escapeHtml(labels.result) + '</th>' +
+                '<th scope="col">' + escapeHtml(labels.cost) + '</th>' +
+                '<th scope="col">' + escapeHtml(labels.detail) + '</th>' +
+                '</tr></thead><tbody>';
+
+        data.results.forEach(function(r) {
+            html += '<tr>';
+            html += '<td><strong>' + escapeHtml(r.method_name) +
+                    '</strong><div class="etf-str-table__id">' + escapeHtml(r.method_code) + '</div></td>';
+            if (r.matched) {
+                html += '<td><span class="etf-str-badge etf-str-badge--success">' + escapeHtml(labels.match) + '</span></td>';
+                html += '<td><strong>' + parseFloat(r.total_cost).toFixed(2) + '</strong></td>';
+                var detail = '<div class="etf-str-sim-detail">';
+                if (r.delivery_days) {
+                    detail += escapeHtml(labels.eta) + ': ' + r.delivery_days + ' ' + escapeHtml(labels.days) + '<br>';
+                }
+                if (r.comment) {
+                    detail += '<span class="etf-str-sim-detail__comment">' + escapeHtml(r.comment) + '</span><br>';
+                }
+                r.winners.forEach(function(w) {
+                    detail += '<span class="etf-str-sim-detail__rule">rate_id=' + w.rate_id +
+                              ' shipping_type=' + escapeHtml(w.shipping_type || '(any)') +
+                              ' &mdash; ' + escapeHtml(w.formula) + '</span><br>';
+                });
+                detail += '</div>';
+                html += '<td>' + detail + '</td>';
+            } else {
+                html += '<td><span class="etf-str-badge etf-str-badge--error">' + escapeHtml(labels.noMatch) + '</span></td>';
+                html += '<td><span class="etf-str-state-inactive">&mdash;</span></td>';
+                html += '<td><span class="etf-str-state-inactive">' + escapeHtml(labels.noRule) + '</span></td>';
+            }
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    }
+
+    function renderError(el, err) {
+        el.className = 'etf-str-sim-result etf-str-sim-result--error';
+        el.innerHTML = escapeHtml(labels.error) + ' ' + escapeHtml(err.message || err);
+    }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+            return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
+        });
+    }
+})();
+</script>

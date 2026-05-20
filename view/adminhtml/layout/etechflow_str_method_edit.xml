@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="editor"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Edit" name="etechflow_str.method.edit"/>
+            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Edit\Rates" name="etechflow_str.method.rates"
+                   template="ETechFlow_ShippingTableRates::method/rates.phtml"/>
+            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Import" name="etechflow_str.method.import_panel"
+                   template="ETechFlow_ShippingTableRates::method/import.phtml"/>
+            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Edit\Simulator" name="etechflow_str.method.simulator"
+                   template="ETechFlow_ShippingTableRates::method/simulator.phtml"/>
+            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Edit\Versions" name="etechflow_str.method.versions"
+                   template="ETechFlow_ShippingTableRates::method/versions.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

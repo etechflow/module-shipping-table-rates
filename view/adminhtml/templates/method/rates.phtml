@@ -1,0 +1,109 @@
+<?php
+/**
+ * @var \ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Edit\Rates $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$methodId = $block->getMethodId();
+if (!$methodId) {
+    return;  // method not saved yet — rates can't exist until method has an ID
+}
+
+$rates = $block->getRates();
+$total = $block->getTotalRateCount();
+?>
+<div class="entry-edit etf-str-panel">
+    <div class="entry-edit-head etf-str-panel__head">
+        <strong class="admin__collapsible-title etf-str-panel__title">
+            <?= $escaper->escapeHtml(__('Rate Rules')) ?>
+            <?php if ($total > 0): ?>
+                <span class="etf-str-panel__count">(<?= (int) $total ?>)</span>
+            <?php endif; ?>
+        </strong>
+        <a href="<?= $escaper->escapeUrl($block->getAddUrl()) ?>" class="action-secondary">
+            <span><?= $escaper->escapeHtml(__('Add Rate Rule')) ?></span>
+        </a>
+    </div>
+    <fieldset class="admin__fieldset">
+
+    <?php if (empty($rates)): ?>
+        <div class="etf-str-empty">
+            <strong class="etf-str-empty__title"><?= $escaper->escapeHtml(__('No rate rules yet')) ?></strong>
+            <div class="etf-str-empty__hint">
+                <?= $escaper->escapeHtml(__('Click "Add Rate Rule" above to create one manually, or use the CSV import below for bulk setup.')) ?>
+            </div>
+        </div>
+    <?php else: ?>
+        <table class="etf-str-table etf-str-table--compact" role="table" aria-label="<?= $escaper->escapeHtmlAttr(__('Rate rules for this shipping method')) ?>">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Active')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Country')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Region')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Postcode')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Weight')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Qty')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Subtotal')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Type')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Rate')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Sort')) ?></th>
+                    <th scope="col" style="width:140px;"><?= $escaper->escapeHtml(__('Action')) ?></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($rates as $rate): ?>
+                <tr>
+                    <td class="etf-str-table__id"><?= (int) $rate->getRateId() ?></td>
+                    <td>
+                        <?php if ($rate->isActive()): ?>
+                            <span class="etf-str-state-active" aria-label="<?= $escaper->escapeHtmlAttr(__('Active')) ?>">✓</span>
+                        <?php else: ?>
+                            <span class="etf-str-state-inactive" aria-label="<?= $escaper->escapeHtmlAttr(__('Inactive')) ?>">○</span>
+                        <?php endif; ?>
+                    </td>
+                    <td><?= $escaper->escapeHtml($rate->getCountryCode() ?? '*') ?></td>
+                    <td><?= $escaper->escapeHtml($rate->getRegionCode() ?? '*') ?></td>
+                    <td class="etf-str-table__mono"><?= $escaper->escapeHtml($block->formatRange($rate->getZipFrom(), $rate->getZipTo())) ?></td>
+                    <td><?= $escaper->escapeHtml($block->formatRange($rate->getWeightFrom(), $rate->getWeightTo())) ?></td>
+                    <td><?= $escaper->escapeHtml($block->formatRange($rate->getQtyFrom(), $rate->getQtyTo())) ?></td>
+                    <td><?= $escaper->escapeHtml($block->formatRange($rate->getSubtotalFrom(), $rate->getSubtotalTo())) ?></td>
+                    <td><?= $escaper->escapeHtml($rate->getShippingType() ?? '*') ?></td>
+                    <td class="etf-str-table__mono"><?= $escaper->escapeHtml($block->formatFormula($rate)) ?></td>
+                    <td style="text-align:right;"><?= (int) $rate->getSortOrder() ?></td>
+                    <td>
+                        <div class="etf-str-table__actions">
+                            <a href="<?= $escaper->escapeUrl($block->getEditUrl((int) $rate->getRateId())) ?>"
+                               aria-label="<?= $escaper->escapeHtmlAttr(__('Edit rate rule #%1', (int) $rate->getRateId())) ?>">
+                                <?= $escaper->escapeHtml(__('Edit')) ?>
+                            </a>
+                            <form method="post" action="<?= $escaper->escapeUrl($block->getDeleteUrl((int) $rate->getRateId())) ?>"
+                                  class="etf-str-table__inline-form"
+                                  onsubmit="return confirm('<?= $escaper->escapeJs(__('Delete this rate rule? The pre-delete state will be snapshotted, so this is reversible from the Version History panel.')->render()) ?>');">
+                                <?= $block->getBlockHtml('formkey') ?>
+                                <button type="submit"
+                                        class="etf-str-table__delete-button"
+                                        aria-label="<?= $escaper->escapeHtmlAttr(__('Delete rate rule #%1', (int) $rate->getRateId())) ?>">
+                                    <?= $escaper->escapeHtml(__('Delete')) ?>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php if ($total > count($rates)): ?>
+            <p class="etf-str-note">
+                <?= $escaper->escapeHtml(__(
+                    'Showing the first %1 of %2 rules. Use the CSV export below to inspect or bulk-edit the full set.',
+                    count($rates),
+                    $total
+                )) ?>
+            </p>
+        <?php endif; ?>
+        <p class="etf-str-note">
+            <?= $escaper->escapeHtml(__('* = "match any value". Each rule matches a cart when EVERY non-wildcard condition is satisfied. Lower sort_order wins when multiple rules match.')) ?>
+        </p>
+    <?php endif; ?>
+    </fieldset>
+</div>

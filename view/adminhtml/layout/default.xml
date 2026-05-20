@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+    Load the admin CSS on every backend page. ~6KB minified — small enough
+    that the cost of loading it everywhere is negligible vs the complexity
+    of registering it only on STR pages (which would multiply layout files).
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="ETechFlow_ShippingTableRates::css/etechflow-str.css"/>
+    </head>
+</page>

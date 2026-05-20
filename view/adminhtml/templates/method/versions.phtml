@@ -1,0 +1,74 @@
+<?php
+/**
+ * @var \ETechFlow\ShippingTableRates\Block\Adminhtml\Method\Edit\Versions $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+if (!$block->getMethodId()) {
+    return;
+}
+
+$versions = $block->getVersions();
+?>
+<div class="entry-edit etf-str-panel">
+    <div class="entry-edit-head etf-str-panel__head">
+        <strong class="admin__collapsible-title etf-str-panel__title">
+            <?= $escaper->escapeHtml(__('Version History')) ?>
+        </strong>
+    </div>
+    <fieldset class="admin__fieldset">
+        <p class="etf-str-panel__hint">
+            <?= $escaper->escapeHtml(__('Every method save and CSV import creates a snapshot you can restore from. The current state is auto-snapshotted before each rollback, so the rollback itself is reversible.')) ?>
+        </p>
+
+    <?php if (empty($versions)): ?>
+        <div class="etf-str-empty">
+            <strong class="etf-str-empty__title"><?= $escaper->escapeHtml(__('No snapshots yet')) ?></strong>
+            <div class="etf-str-empty__hint">
+                <?= $escaper->escapeHtml(__('The first snapshot will appear here after your next save, CSV import, or delete.')) ?>
+            </div>
+        </div>
+    <?php else: ?>
+        <table class="etf-str-table" role="table" aria-label="<?= $escaper->escapeHtmlAttr(__('Version history for this shipping method')) ?>">
+            <thead>
+                <tr>
+                    <th scope="col"><?= $escaper->escapeHtml(__('When')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Label')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('By')) ?></th>
+                    <th scope="col" style="width:120px;"><?= $escaper->escapeHtml(__('Action')) ?></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($versions as $v): ?>
+                <tr>
+                    <td class="etf-str-table__timestamp">
+                        <?= $escaper->escapeHtml($v['created_at']) ?>
+                    </td>
+                    <td><?= $escaper->escapeHtml($v['label']) ?></td>
+                    <td style="color:#666;">
+                        <?= $escaper->escapeHtml($v['created_by'] ?: '—') ?>
+                    </td>
+                    <td>
+                        <form method="post" action="<?= $escaper->escapeUrl($v['restore_url']) ?>"
+                              class="etf-str-table__inline-form"
+                              onsubmit="return confirm('<?= $escaper->escapeJs(__('Restore this version? Current state will be snapshotted first so this rollback is reversible.')->render()) ?>');">
+                            <?= $block->getBlockHtml('formkey') ?>
+                            <button type="submit"
+                                    class="action-secondary"
+                                    style="font-size:11px;padding:4px 10px;"
+                                    aria-label="<?= $escaper->escapeHtmlAttr(__('Restore version %1', (int) $v['version_id'])) ?>">
+                                <span><?= $escaper->escapeHtml(__('Restore')) ?></span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php if (count($versions) >= 25): ?>
+            <p class="etf-str-note">
+                <?= $escaper->escapeHtml(__('Showing the 25 most recent snapshots.')) ?>
+            </p>
+        <?php endif; ?>
+    <?php endif; ?>
+    </fieldset>
+</div>

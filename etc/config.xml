@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <etechflow_shippingtablerates>
+            <license>
+                <production_environment>1</production_environment>
+                <license_key></license_key>
+            </license>
+            <general>
+                <enabled>1</enabled>
+                <use_discounted_price>1</use_discounted_price>
+                <price_includes_tax>0</price_includes_tax>
+                <conflict_detection>1</conflict_detection>
+            </general>
+        </etechflow_shippingtablerates>
+
+        <!-- Magento Shipping carrier registration. The model class implements
+             CarrierInterface and is invoked by Magento's shipping subsystem
+             at checkout. Defaults: active=1 (carrier on), sort_order=10
+             (appears mid-list), showmethod=1 (show even when no rates so
+             merchants can debug). Per-merchant overrides happen via the
+             admin: Stores → Configuration → Sales → Shipping Methods. -->
+        <carriers>
+            <etechflow_str>
+                <active>1</active>
+                <model>ETechFlow\ShippingTableRates\Model\Carrier\TableRates</model>
+                <title>Shipping</title>
+                <name>Shipping Rate</name>
+                <sallowspecific>0</sallowspecific>
+                <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
+                <showmethod>1</showmethod>
+                <sort_order>10</sort_order>
+            </etechflow_str>
+        </carriers>
+    </default>
+</config>

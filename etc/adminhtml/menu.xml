@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="ETechFlow_ShippingTableRates::manage"
+             title="Shipping Table Rates"
+             module="ETechFlow_ShippingTableRates"
+             sortOrder="60"
+             resource="ETechFlow_ShippingTableRates::manage"
+             parent="Magento_Sales::operations"
+             action="etechflow_str/method/index"/>
+    </menu>
+</config>
