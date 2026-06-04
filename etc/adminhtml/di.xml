@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+  Admin-area DI for ETechFlow_ShippingTableRates.
+
+  Registers the License gate plugin against the abstract Method/Rate
+  controller base classes. Every concrete subclass inherits the gate
+  transparently — the plugin redirects to /admin/etechflow_str/license/gate
+  when LicenseValidator->isValid() returns false.
+
+  License/* controllers (Gate, Checkout, Activated) extend Magento\Backend\App\Action
+  DIRECTLY (not AbstractMethod/AbstractRate), so they're NOT intercepted —
+  the merchant can still reach the gate page and the Stripe Checkout flow
+  while the module is locked. Stores → Configuration → eTechFlow →
+  Shipping Table Rates is also reachable (Magento's own system_config
+  controller, not ours).
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="ETechFlow\ShippingTableRates\Controller\Adminhtml\Method\AbstractMethod">
+        <plugin name="etechflow_str_license_gate_method"
+                type="ETechFlow\ShippingTableRates\Plugin\Adminhtml\LicenseGatePlugin"
+                sortOrder="10"/>
+    </type>
+    <type name="ETechFlow\ShippingTableRates\Controller\Adminhtml\Rate\AbstractRate">
+        <plugin name="etechflow_str_license_gate_rate"
+                type="ETechFlow\ShippingTableRates\Plugin\Adminhtml\LicenseGatePlugin"
+                sortOrder="10"/>
+    </type>
+</config>

@@ -16,4 +16,16 @@
         </arguments>
     </type>
 
+    <!--
+      Smart-fallback / hide gate for Magento's built-in flatrate carrier.
+      Reads the merchant's Flat Rate Behavior config and intercepts
+      Flatrate::collectRates() at storefront checkout. Registered in global
+      di.xml (not adminhtml) because it affects the storefront carrier query.
+    -->
+    <type name="Magento\OfflineShipping\Model\Carrier\Flatrate">
+        <plugin name="etechflow_str_flatrate_gate"
+                type="ETechFlow\ShippingTableRates\Plugin\Carrier\FlatrateGatePlugin"
+                sortOrder="10"/>
+    </type>
+
 </config>

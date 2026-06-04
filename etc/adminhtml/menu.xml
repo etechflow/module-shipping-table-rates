@@ -26,8 +26,7 @@
              action="adminhtml/system_config/edit/section/etechflow_shippingtablerates"
              resource="Magento_Config::config"/>
 
-        <!-- Shipping Table Rates column. Previously parented under
-             Magento_Sales::operations. -->
+        <!-- Shipping Table Rates column. -->
         <add id="ETechFlow_ShippingTableRates::root"
              title="Shipping Table Rates"
              module="ETechFlow_ShippingTableRates"
@@ -42,5 +41,14 @@
              parent="ETechFlow_ShippingTableRates::root"
              action="etechflow_str/method/index"
              resource="ETechFlow_ShippingTableRates::manage"/>
+
+        <!-- License & Plans gate entry. Reuses the ::config ACL resource. -->
+        <add id="ETechFlow_ShippingTableRates::license_gate"
+             title="License &amp; Plans"
+             module="ETechFlow_ShippingTableRates"
+             sortOrder="100"
+             parent="ETechFlow_ShippingTableRates::root"
+             action="etechflow_str/license/gate"
+             resource="ETechFlow_ShippingTableRates::config"/>
     </menu>
 </config>

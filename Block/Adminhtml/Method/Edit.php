@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ETechFlow\ShippingTableRates\Block\Adminhtml\Method;
 
+use Magento\Backend\Block\Widget\Context;
 use Magento\Backend\Block\Widget\Form\Container;
+use Magento\Framework\Registry;
 
 /**
  * Container for the method edit form — provides Save / Save and Continue /
@@ -12,6 +14,20 @@ use Magento\Backend\Block\Widget\Form\Container;
  */
 class Edit extends Container
 {
+    /**
+     * @var Registry
+     */
+    protected $_coreRegistry = null;
+
+    public function __construct(
+        Context $context,
+        Registry $registry,
+        array $data = []
+    ) {
+        $this->_coreRegistry = $registry;
+        parent::__construct($context, $data);
+    }
+
     /**
      * @return void
      */

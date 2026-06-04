@@ -4,6 +4,44 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.2.0] — 2026-06-04 — Stripe portal licensing + v1.1.1 bug fixes
+
+### Added
+
+- **Stripe-portal subscription licensing.** Adds the SP-XXXX subscription-key flow to STR — the same pattern shipped with `ETechFlow_BackorderEtaDisplay` v1.3.0 and `ETechFlow_NextDayEligibility` v1.8.0. Three billing-period plans (Weekly $9/wk, Monthly $29/mo, Yearly $290/yr — same shape as `ETechFlow_DeliveryDate`) with in-admin Stripe Checkout, automatic key activation, portal-validated server-IP enforcement, and 48-hour offline grace when the portal is unreachable. HMAC per-module keys and bundle keys (`LICENSING_PROTOCOL.md`) keep working unchanged for offline activation.
+- **License gate page** under **eTechFlow → Shipping Table Rates → License & Plans**. Dark plan-cards UI with "Select Plan & Pay" + "Enter License Key" CTAs. On payment success, the SP-XXXX key is saved to `etechflow_shippingtablerates/license/license_key` automatically.
+- **Payment settings group** under Stores → Configuration → eTechFlow → Shipping Table Rates → Payment (Stripe). Accepts Stripe `sk_test`/`sk_live` (Encrypted) + `pk_test`/`pk_live` + currency.
+- **Bundle License Key field** in the License group — paste a shared eTechFlow bundle key once to activate every installed eTechFlow module.
+- **IP-block auto-management.** When the portal returns `ip_blocked:true`, the licence key is auto-cleared and the `ip_blocked` flag is set; when the IP is re-permitted, the next portal round-trip restores the key from `issued_key` so the module unlocks without admin intervention. A *manual* key clear (without the flag) keeps the module locked, distinguishing the two cases.
+
+### Fixed
+
+- **`Block/Adminhtml/Method/Edit.php`** — was missing the `Registry` injection, causing the admin Method Edit page to fail with `Undefined property: $_coreRegistry`. Added explicit `__construct(Context, Registry, array)` so the admin Method form actually renders.
+- **`Block/Adminhtml/Method/Edit/Simulator.php`** — was reading `$this->_formKey` which doesn't exist on parent `\Magento\Backend\Block\Template`. Replaced with explicit `\Magento\Framework\Data\Form\FormKey` injection, so the Live Cart Simulator panel can submit its AJAX request with the form key.
+- **`Block/Adminhtml/Rate/Edit.php`** — same Registry-injection bug as Method/Edit.php. Added `__construct(Context, Registry, array)` so the rate-rule Edit/New form opens without `Undefined property: $_coreRegistry`.
+- **`Model/Csv/CsvExporter.php`** — `fputcsv()` was called without the `$escape` parameter on lines 56, 58 and 70, which on PHP 8.4 triggers `Deprecated Functionality: the $escape parameter must be provided as its default value will change`, breaking the CSV download with a fatal in developer mode. Added the `','`, `'"'`, `'\\'` triplet to all three calls so the exporter is PHP 8.4-safe and round-trips cleanly through the importer (which was already correct).
+
+### Changed
+
+- `Model/LicenseValidator.php` constructor extended from 2-arg (`ScopeConfigInterface`, `StoreManagerInterface`) to **5-arg** with `CacheInterface`, `Curl`, and `WriterInterface`. HMAC per-module + bundle paths remain identical. `MODULE_ID`, `SECRET_FRAGMENTS`, and `BUNDLE_SECRET_FRAGMENTS` constants are preserved byte-identical, so existing per-module HMAC keys and bundle keys continue to validate. Cache TTL is 60s for both valid and reject answers so portal IP-block events propagate within ~60s. Tri-state portal validation (`?bool`) means an explicit portal reject locks immediately — the 48h local grace only applies when the portal is unreachable.
+
+### Migration
+
+```
+composer update etechflow/module-shipping-table-rates
+bin/magento setup:upgrade
+bin/magento cache:flush
+```
+
+If upgrading from v1.1.x: no schema or admin URL changes. After upgrade, visit **Stores → Configuration → eTechFlow → Shipping Table Rates → Payment** to enter Stripe keys if you intend to use the in-admin Checkout flow. Existing HMAC keys and bundle keys keep validating without any merchant action.
+
+### Notes
+
+- `License Portal URL` defaults to `https://subpanel-paralyses-president.ngrok-free.dev/license/validate` (the eTechFlow portal). For production change this to the eTechFlow-published portal URL when announced.
+- The `Production Environment` toggle controls whether dev-host bypass applies. Default: Yes (enforce licensing). Set to No on dev/staging if your hostname isn't auto-detected.
+
+---
+
 ## [1.1.1] — 2026-05-22 — Move admin menu under eTechFlow top-level sidebar
 
 ### Changed

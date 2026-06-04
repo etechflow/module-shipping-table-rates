@@ -3,6 +3,11 @@
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
+            <!-- Flat Rate advisory banner (only renders when Magento's built-in flatrate carrier is active) -->
+            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method\FlatrateBanner"
+                   name="etechflow_str.flatrate_banner"
+                   template="ETechFlow_ShippingTableRates::method/flatrate_banner.phtml"
+                   before="-"/>
             <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method" name="etechflow_str.method"/>
         </referenceContainer>
     </body>

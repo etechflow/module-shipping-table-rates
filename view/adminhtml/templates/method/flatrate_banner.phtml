@@ -1,0 +1,64 @@
+<?php
+/**
+ * @var \ETechFlow\ShippingTableRates\Block\Adminhtml\Method\FlatrateBanner $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+if (!$block->shouldShow()) {
+    return;
+}
+$behavior = $block->getCurrentBehavior();
+$behaviorLabel = match ($behavior) {
+    'always_show'    => 'always shown alongside STR (no filtering)',
+    'never_show'     => 'hidden whenever STR is enabled',
+    default          => 'shown only when STR has no matching rule (smart fallback)',
+};
+?>
+<style>
+.etf-str-flatrate-banner {
+    background:#fff7e6;
+    border:1px solid #f0b455;
+    border-left:5px solid #f59e0b;
+    border-radius:6px;
+    padding:14px 18px;
+    margin:18px 0 10px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+}
+.etf-str-flatrate-banner .etf-icon{font-size:22px;line-height:1;flex-shrink:0;}
+.etf-str-flatrate-banner .etf-text{flex:1;min-width:280px;}
+.etf-str-flatrate-banner .etf-text strong{color:#7c3a00;display:block;margin-bottom:3px;font-size:13.5px;}
+.etf-str-flatrate-banner .etf-text small{display:block;color:#7c3a00;font-size:11.5px;margin-top:4px;opacity:.85;}
+.etf-str-flatrate-banner .etf-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.etf-str-flatrate-banner .etf-btn{
+    padding:8px 14px;border-radius:5px;font-weight:600;font-size:12.5px;
+    text-decoration:none;border:none;cursor:pointer;
+}
+.etf-str-flatrate-banner .etf-btn-primary{background:#7c3a00;color:#fff;}
+.etf-str-flatrate-banner .etf-btn-primary:hover{background:#5c2b00;}
+.etf-str-flatrate-banner .etf-btn-ghost{background:transparent;color:#7c3a00;border:1px solid #f0b455;}
+.etf-str-flatrate-banner .etf-btn-ghost:hover{background:#fde9c2;}
+</style>
+
+<div class="etf-str-flatrate-banner">
+    <div class="etf-icon">&#9888;&#65039;</div>
+    <div class="etf-text">
+        <strong>Magento's built-in Flat Rate carrier is enabled.</strong>
+        <span>It will compete with STR's rules at checkout (customers may see a $5 Flat Rate row next to your calculated rates).</span>
+        <small>Current STR behavior: Flat Rate is <?= $escaper->escapeHtml($behaviorLabel); ?>.</small>
+    </div>
+    <div class="etf-actions">
+        <form method="post" action="<?= $escaper->escapeUrl($block->getDisableUrl()); ?>" style="display:inline;">
+            <?= $block->getBlockHtml('formkey'); ?>
+            <button type="submit" class="etf-btn etf-btn-primary"
+                    onclick="return confirm('Disable Magento\'s built-in Flat Rate carrier? STR will become the only shipping carrier on this store. You can re-enable it under Stores -> Configuration -> Sales -> Shipping Methods -> Flat Rate.');">
+                Disable Flat Rate
+            </button>
+        </form>
+        <a href="<?= $escaper->escapeUrl($block->getBehaviorConfigUrl()); ?>" class="etf-btn etf-btn-ghost">
+            Change Behavior
+        </a>
+    </div>
+</div>

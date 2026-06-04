@@ -20,11 +20,6 @@ use ETechFlow\ShippingTableRates\Model\ResourceModel\Rate\CollectionFactory as R
  */
 class CsvExporter
 {
-    /**
-     * Constructor.
-     *
-     * @param RateCollectionFactory $rateCollectionFactory
-     */
     public function __construct(
         private readonly RateCollectionFactory $rateCollectionFactory
     ) {
@@ -45,9 +40,7 @@ class CsvExporter
 
         $methodId = $method->getMethodId();
         if ($methodId === null) {
-            // No method, no rates — still write the header so the merchant
-            // gets a populatable template
-            fputcsv($outputHandle, CsvSchema::getHeaderRow());
+            fputcsv($outputHandle, CsvSchema::getHeaderRow(), ',', '"', '\\');
             return 0;
         }
 
@@ -55,11 +48,11 @@ class CsvExporter
         $collection->addFieldToFilter('method_id', $methodId);
         $collection->setOrder('sort_order', 'ASC');
 
-        fputcsv($outputHandle, CsvSchema::getHeaderRow());
+        fputcsv($outputHandle, CsvSchema::getHeaderRow(), ',', '"', '\\');
 
         $written = 0;
         foreach ($collection as $rate) {
-            fputcsv($outputHandle, $this->rateToRow($rate));
+            fputcsv($outputHandle, $this->rateToRow($rate), ',', '"', '\\');
             $written++;
         }
 
@@ -67,8 +60,6 @@ class CsvExporter
     }
 
     /**
-     * Convert a Rate model to an indexed array in CsvSchema column order.
-     *
      * @param Rate $rate
      * @return array
      */
@@ -82,9 +73,6 @@ class CsvExporter
     }
 
     /**
-     * Format a single column value for CSV — null → empty string, booleans
-     * → 1/0, everything else via string cast.
-     *
      * @param Rate   $rate
      * @param string $key
      * @return string
@@ -116,10 +104,6 @@ class CsvExporter
             'comment'            => $rate->getComment(),
             'sort_order'         => $rate->getSortOrder(),
             'is_active'          => $rate->isActive() ? 1 : 0,
-
-            // delete_row is a CSV directive column (Feature 5), not stored
-            // on the rate. Always export as 0 — merchants flip individual
-            // rows to 1 in their editor when they want to delete via import.
             'delete_row'         => 0,
             default              => null,
         };

@@ -2,7 +2,7 @@
     "name": "etechflow/module-shipping-table-rates",
     "description": "Flexible shipping table rates for Magento 2 with a visual rule builder, live cart simulator, versioned rate sets, conflict detection, native MSI, and Hyvä support. Designed to be the merchant-friendly alternative to Amasty / MageWorx Shipping Table Rates.",
     "type": "magento2-module",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "license": "proprietary",
     "authors": [
         {

@@ -1,0 +1,67 @@
+<?php
+/**
+ * @var \Magento\Backend\Block\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$licenseKey     = (string) $block->getData('license_key');
+$plan           = (string) $block->getData('plan');
+$error          = (string) $block->getData('error');
+$settingsUrl    = (string) $block->getData('settings_url');
+$managementUrl  = (string) $block->getData('management_url');
+?>
+<style>
+.etf-act { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#0d1b2a; min-height:100vh; padding:48px 16px; color:#e8edf2; display:flex; align-items:center; justify-content:center; }
+.etf-act-card { background:#1a2a3a; border:1px solid #2a3f55; border-radius:16px; padding:40px 36px; max-width:520px; width:100%; text-align:center; }
+.etf-act-icon { font-size:48px; margin-bottom:16px; }
+.etf-act-card h1 { font-size:24px; font-weight:700; color:#fff; margin:0 0 8px; }
+.etf-act-card p { color:#8fa3b8; font-size:14px; margin:0 0 24px; }
+.etf-key-box { background:#0d1b2a; border:1px solid #1a73e8; border-radius:8px; padding:16px; margin:20px 0; text-align:center; }
+.etf-key-box p { margin:0 0 6px; font-size:11px; color:#8fa3b8; letter-spacing:1px; text-transform:uppercase; }
+.etf-key-val { font-size:20px; font-weight:800; letter-spacing:2px; color:#fff; font-family:monospace; word-break:break-all; }
+.etf-copy-btn { margin-top:10px; padding:7px 18px; background:#1a73e8; color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; }
+.etf-note { background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2); border-radius:8px; padding:12px 16px; margin:16px 0; font-size:12px; color:#34d399; text-align:left; }
+.etf-note strong { display:block; margin-bottom:4px; }
+.etf-cta-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:24px; }
+.etf-btn { display:inline-flex; align-items:center; gap:6px; padding:10px 22px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer; border:none; }
+.etf-btn-primary { background:linear-gradient(135deg,#1a73e8,#0d5fc4); color:#fff; }
+.etf-btn-ghost { background:transparent; border:1px solid #2a3f55; color:#93c5fd; }
+.etf-err-card { background:#2a1a1a; border:1px solid #c0392b; border-radius:8px; padding:16px; color:#e74c3c; font-size:13px; }
+</style>
+
+<div class="etf-act">
+  <div class="etf-act-card">
+    <?php if ($licenseKey): ?>
+      <div class="etf-act-icon">&#127881;</div>
+      <h1>Module Activated!</h1>
+      <p>Your Shipping Table Rates subscription is now active. Your license key has been saved automatically.</p>
+
+      <div class="etf-key-box">
+        <p>Your License Key</p>
+        <div class="etf-key-val"><?= $escaper->escapeHtml($licenseKey); ?></div>
+        <button class="etf-copy-btn" onclick="navigator.clipboard.writeText('<?= $escaper->escapeJs($licenseKey); ?>'); this.textContent='&#10003; Copied!'; setTimeout(()=>this.textContent='Copy Key',2000);">Copy Key</button>
+      </div>
+
+      <div class="etf-note">
+        <strong>&#10003; Automatically configured</strong>
+        The license key has been saved to your Magento configuration. Flush the cache to activate the module features.
+      </div>
+
+      <?php if ($plan): ?>
+        <p style="font-size:12px;color:#4a5568;">Plan: <strong style="color:#93c5fd;"><?= $escaper->escapeHtml(ucfirst(str_replace('str_', '', $plan))); ?></strong></p>
+      <?php endif; ?>
+
+      <div class="etf-cta-row">
+        <a href="<?= $escaper->escapeUrl($managementUrl); ?>" class="etf-btn etf-btn-primary">&#128197; Open Shipping Methods</a>
+        <a href="<?= $escaper->escapeUrl($settingsUrl); ?>" class="etf-btn etf-btn-ghost">&#9881;&#65039; Settings</a>
+      </div>
+    <?php else: ?>
+      <div class="etf-act-icon">&#9888;&#65039;</div>
+      <h1>Something went wrong</h1>
+      <div class="etf-err-card"><?= $escaper->escapeHtml($error ?: 'Payment verification failed. Please contact support.'); ?></div>
+      <p style="margin-top:16px;font-size:13px;color:#8fa3b8;">If payment was taken but the key was not issued, contact <a href="mailto:support@etechflow.com" style="color:#93c5fd;">support@etechflow.com</a>.</p>
+      <div class="etf-cta-row">
+        <a href="<?= $escaper->escapeUrl($block->getUrl('etechflow_str/license/gate')); ?>" class="etf-btn etf-btn-primary">&#8592; Back to Plans</a>
+      </div>
+    <?php endif; ?>
+  </div>
+</div>

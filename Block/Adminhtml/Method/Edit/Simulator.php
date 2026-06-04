@@ -8,6 +8,7 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Customer\Api\GroupManagementInterface;
 use Magento\Directory\Model\Config\Source\Country;
+use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Registry;
 
 /**
@@ -28,6 +29,7 @@ class Simulator extends Template
         private readonly Registry $coreRegistry,
         private readonly Country $countrySource,
         private readonly GroupManagementInterface $customerGroupManagement,
+        private readonly FormKey $formKeyService,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -55,7 +57,7 @@ class Simulator extends Template
      */
     public function getFormKey(): string
     {
-        return $this->_formKey ? $this->_formKey->getFormKey() : '';
+        return $this->formKeyService->getFormKey();
     }
 
     /**
@@ -65,8 +67,6 @@ class Simulator extends Template
     {
         $options = [['value' => '', 'label' => __('-- Any country --')]];
         foreach ($this->countrySource->toOptionArray(false) as $row) {
-            // toOptionArray returns either ['value' => 'GB', 'label' => 'United Kingdom']
-            // or sometimes nested arrays; flatten safely
             if (is_array($row) && isset($row['value'], $row['label']) && !is_array($row['value'])) {
                 $options[] = ['value' => (string) $row['value'], 'label' => (string) $row['label']];
             }
@@ -88,7 +88,6 @@ class Simulator extends Template
             // best-effort — fall back to no options if group management
             // unavailable in this admin context
         }
-        // Always include the "Not logged in" guest group
         array_unshift($options, ['value' => 0, 'label' => __('Guest (Not logged in)')->render()]);
         return $options;
     }

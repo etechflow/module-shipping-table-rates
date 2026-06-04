@@ -1,0 +1,137 @@
+<?php
+/**
+ * @var \Magento\Backend\Block\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$settingsUrl = $block->getUrl('adminhtml/system_config/edit/section/etechflow_shippingtablerates');
+$checkoutUrl = $block->getUrl('etechflow_str/license/checkout');
+?>
+<style>
+.etf-gate { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#0d1b2a; min-height:100vh; padding:32px 16px; color:#e8edf2; }
+.etf-gate-hdr { text-align:center; margin-bottom:32px; }
+.etf-badge { display:inline-block; background:linear-gradient(135deg,#1a73e8,#0d5fc4); color:#fff; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:3px 12px; border-radius:20px; margin-bottom:12px; }
+.etf-gate-hdr h1 { font-size:26px; font-weight:700; color:#fff; margin:0 0 6px; }
+.etf-gate-hdr p { color:#8fa3b8; font-size:14px; margin:0 auto; max-width:520px; }
+.etf-top-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:24px auto 32px; max-width:480px; }
+.etf-btn { display:inline-flex; align-items:center; gap:7px; padding:11px 24px; border-radius:8px; font-size:14px; font-weight:600; text-decoration:none; cursor:pointer; transition:opacity .15s; border:none; }
+.etf-btn:hover { opacity:.85; }
+.etf-btn-primary { background:linear-gradient(135deg,#1a73e8,#0d5fc4); color:#fff; }
+.etf-btn-ghost { background:transparent; border:1px solid #2a3f55; color:#93c5fd; }
+.etf-plans { display:flex; flex-wrap:wrap; gap:18px; justify-content:center; max-width:980px; margin:0 auto 32px; }
+.etf-plan { background:#1a2a3a; border:1px solid #2a3f55; border-radius:12px; padding:24px 20px; width:276px; position:relative; transition:border-color .2s,transform .2s; }
+.etf-plan:hover { border-color:#1a73e8; transform:translateY(-2px); }
+.etf-plan.featured { border-color:#1a73e8; background:linear-gradient(135deg,#1a2a3a,#0f2040); }
+.etf-plan.featured::before { content:'MOST POPULAR'; position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:#1a73e8; color:#fff; font-size:9px; font-weight:700; letter-spacing:1.5px; padding:2px 10px; border-radius:10px; }
+.etf-plan-name { font-size:17px; font-weight:700; color:#fff; margin-bottom:4px; }
+.etf-plan-price { font-size:28px; font-weight:800; color:#1a73e8; margin-bottom:3px; }
+.etf-plan-price span { font-size:13px; font-weight:400; color:#8fa3b8; }
+.etf-plan-desc { font-size:11px; color:#8fa3b8; margin-bottom:14px; min-height:28px; }
+.etf-plan-feat { list-style:none; margin:0 0 16px; padding:0; }
+.etf-plan-feat li { font-size:12px; color:#c8d8e8; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.05); display:flex; align-items:center; gap:7px; }
+.etf-plan-feat li::before { content:'\2713'; color:#34d399; font-weight:700; flex-shrink:0; }
+.etf-plan-btn { width:100%; padding:10px; border-radius:6px; font-size:13px; font-weight:600; background:linear-gradient(135deg,#1a73e8,#0d5fc4); color:#fff; border:none; cursor:pointer; transition:opacity .15s; }
+.etf-plan-btn:hover { opacity:.88; }
+.etf-form-wrap { display:none; max-width:420px; margin:0 auto 24px; background:#1a2a3a; border:1px solid #2a3f55; border-radius:12px; padding:24px; }
+.etf-form-wrap.active { display:block; }
+.etf-form-wrap h3 { margin:0 0 16px; font-size:16px; color:#fff; }
+.etf-form-wrap label { display:block; font-size:12px; color:#8fa3b8; margin-bottom:4px; margin-top:12px; }
+.etf-form-wrap input { width:100%; padding:9px 12px; background:#0d1b2a; border:1px solid #2a3f55; border-radius:6px; color:#e8edf2; font-size:13px; box-sizing:border-box; }
+.etf-form-wrap input:focus { outline:none; border-color:#1a73e8; }
+.etf-plan-tag { display:inline-block; background:rgba(26,115,232,.15); border:1px solid rgba(26,115,232,.3); color:#93c5fd; font-size:11px; padding:2px 8px; border-radius:4px; margin-bottom:10px; }
+.etf-form-submit { margin-top:16px; width:100%; padding:11px; border-radius:6px; font-size:14px; font-weight:600; background:linear-gradient(135deg,#1a73e8,#0d5fc4); color:#fff; border:none; cursor:pointer; }
+.etf-form-submit:hover { opacity:.88; }
+.etf-back-link { display:block; text-align:center; margin-top:10px; color:#8fa3b8; font-size:12px; cursor:pointer; }
+.etf-back-link:hover { color:#93c5fd; }
+</style>
+
+<div class="etf-gate">
+  <div class="etf-gate-hdr">
+    <div class="etf-badge">eTechFlow Module</div>
+    <h1>Shipping Table Rates</h1>
+    <p>A valid license is required to use this module. Pay by card and your license key is generated instantly.</p>
+  </div>
+
+  <div class="etf-top-cta">
+    <button class="etf-btn etf-btn-primary" onclick="document.getElementById('etf-plans-section').scrollIntoView({behavior:'smooth'})">
+      &#128179; Select Plan &amp; Pay
+    </button>
+    <a href="<?= $escaper->escapeUrl($settingsUrl); ?>" class="etf-btn etf-btn-ghost">
+      &#128273; Enter License Key
+    </a>
+  </div>
+
+  <div id="etf-plans-section" class="etf-plans">
+
+    <div class="etf-plan">
+      <div class="etf-plan-name">Weekly</div>
+      <div class="etf-plan-price">$9<span>/week</span></div>
+      <div class="etf-plan-desc">Short-term or trying it out. Billed weekly, cancel anytime.</div>
+      <ul class="etf-plan-feat">
+        <li>Full module &mdash; every feature</li>
+        <li>Unlimited shipping methods &amp; rate rules</li>
+        <li>Live Cart Simulator &amp; Conflict Detection</li>
+        <li>CSV import/export, Version History</li>
+        <li>CLI tools, Hyv&#228; support</li>
+      </ul>
+      <button class="etf-plan-btn" onclick="etfShowForm('str_weekly','Weekly','$9/week')">Choose Weekly</button>
+    </div>
+
+    <div class="etf-plan featured">
+      <div class="etf-plan-name">Monthly</div>
+      <div class="etf-plan-price">$29<span>/month</span></div>
+      <div class="etf-plan-desc">The standard plan for ongoing stores. Billed monthly.</div>
+      <ul class="etf-plan-feat">
+        <li>Full module &mdash; every feature</li>
+        <li>Unlimited shipping methods &amp; rate rules</li>
+        <li>Live Cart Simulator &amp; Conflict Detection</li>
+        <li>CSV import/export, Version History</li>
+        <li>CLI tools, Hyv&#228; support</li>
+      </ul>
+      <button class="etf-plan-btn" onclick="etfShowForm('str_monthly','Monthly','$29/month')">Choose Monthly</button>
+    </div>
+
+    <div class="etf-plan">
+      <div class="etf-plan-name">Yearly</div>
+      <div class="etf-plan-price">$290<span>/year</span></div>
+      <div class="etf-plan-desc">Best value &mdash; pay for 10 months, get 12 (2 months free).</div>
+      <ul class="etf-plan-feat">
+        <li>Full module &mdash; every feature</li>
+        <li>Unlimited shipping methods &amp; rate rules</li>
+        <li>Live Cart Simulator &amp; Conflict Detection</li>
+        <li>CSV import/export, Version History</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="etf-plan-btn" onclick="etfShowForm('str_yearly','Yearly','$290/year')">Choose Yearly</button>
+    </div>
+  </div>
+
+  <div id="etf-checkout-form" class="etf-form-wrap">
+    <h3>&#128179; Complete your purchase</h3>
+    <div id="etf-plan-tag" class="etf-plan-tag"></div>
+    <p style="font-size:12px;color:#8fa3b8;margin:0 0 4px;">
+      You will be redirected to Stripe for secure payment. Your license key is generated automatically after payment.
+    </p>
+    <form method="post" action="<?= $escaper->escapeUrl($checkoutUrl); ?>" id="etf-pay-form">
+      <?= $block->getBlockHtml('formkey'); ?>
+      <input type="hidden" name="plan" id="etf-plan-input" value="">
+      <label for="etf-name">Full name <span style="color:#c00">*</span></label>
+      <input type="text" name="name" id="etf-name" placeholder="Your name" required maxlength="120">
+      <label for="etf-email">Email address <span style="color:#c00">*</span></label>
+      <input type="email" name="email" id="etf-email" placeholder="you@yourstore.com" required maxlength="255">
+      <button type="submit" class="etf-form-submit">&#128179; Pay with Stripe &rarr;</button>
+    </form>
+    <span class="etf-back-link" onclick="document.getElementById('etf-checkout-form').classList.remove('active')">
+      &larr; Back to plans
+    </span>
+  </div>
+</div>
+
+<script>
+function etfShowForm(planKey, planName, planPrice) {
+    document.getElementById('etf-plan-input').value = planKey;
+    document.getElementById('etf-plan-tag').textContent = planName + ' — ' + planPrice;
+    var form = document.getElementById('etf-checkout-form');
+    form.classList.add('active');
+    form.scrollIntoView({behavior:'smooth', block:'start'});
+}
+</script>

@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace ETechFlow\ShippingTableRates\Test\Unit\Model;
 
 use ETechFlow\ShippingTableRates\Model\LicenseValidator;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\HTTP\Client\Curl;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,18 +20,40 @@ use PHPUnit\Framework\TestCase;
  * and the canonicalisation rules. The HMAC fragments differ from NDE/BED so
  * the per-module flow uses STR's own secret; the bundle flow uses the shared
  * secret all three modules carry.
+ *
+ * v1.2.0 ctor went 2-arg -> 5-arg (Cache + Curl + WriterInterface added for
+ * the SP-XXXX portal flow). Cache mock stubs load() -> false so the portal
+ * branch falls through to the HMAC path on every legacy test case.
  */
 class LicenseValidatorTest extends TestCase
 {
     private ScopeConfigInterface|MockObject $scopeConfig;
     private StoreManagerInterface|MockObject $storeManager;
+    private CacheInterface|MockObject $cache;
+    private Curl|MockObject $curl;
+    private WriterInterface|MockObject $configWriter;
     private LicenseValidator $validator;
 
     protected function setUp(): void
     {
         $this->scopeConfig  = $this->createMock(ScopeConfigInterface::class);
         $this->storeManager = $this->createMock(StoreManagerInterface::class);
-        $this->validator    = new LicenseValidator($this->scopeConfig, $this->storeManager);
+        $this->cache        = $this->createMock(CacheInterface::class);
+        $this->curl         = $this->createMock(Curl::class);
+        $this->configWriter = $this->createMock(WriterInterface::class);
+
+        // Default: cache miss -> portal branch falls through; legacy HMAC cases
+        // never hit the portal anyway because their configured keys don't start
+        // with "SP-".
+        $this->cache->method('load')->willReturn(false);
+
+        $this->validator = new LicenseValidator(
+            $this->scopeConfig,
+            $this->storeManager,
+            $this->cache,
+            $this->curl,
+            $this->configWriter
+        );
     }
 
     /**
