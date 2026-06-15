@@ -37,7 +37,7 @@ If upgrading from v1.1.x: no schema or admin URL changes. After upgrade, visit *
 
 ### Notes
 
-- `License Portal URL` defaults to `https://subpanel-paralyses-president.ngrok-free.dev/license/validate` (the eTechFlow portal). For production change this to the eTechFlow-published portal URL when announced.
+- `License Portal URL` defaults to `https://license-service.etechflow.com/license/validate` (the eTechFlow portal). For production change this to the eTechFlow-published portal URL when announced.
 - The `Production Environment` toggle controls whether dev-host bypass applies. Default: Yes (enforce licensing). Set to No on dev/staging if your hostname isn't auto-detected.
 
 ---
