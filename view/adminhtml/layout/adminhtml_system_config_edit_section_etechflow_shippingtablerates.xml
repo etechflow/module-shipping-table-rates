@@ -4,14 +4,9 @@
     <body>
         <referenceContainer name="content">
             <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\UpdateNotice"
-                   name="etechflow_str_update_notice_methods"
+                   name="etechflow_str_update_notice_config"
                    template="ETechFlow_ShippingTableRates::update-notice.phtml"
                    cacheable="false" before="-"/>
-            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method\FlatrateBanner"
-                   name="etechflow_str.flatrate_banner"
-                   template="ETechFlow_ShippingTableRates::method/flatrate_banner.phtml"
-                   before="-"/>
-            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\Method" name="etechflow_str.method"/>
         </referenceContainer>
     </body>
 </page>

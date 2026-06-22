@@ -93,12 +93,6 @@ class LicenseValidator
         if ($host === '') {
             return false;
         }
-        if (!$this->isProductionEnvironment()) {
-            return true;
-        }
-        if ($this->isDevelopmentHost($host)) {
-            return true;
-        }
         return $this->checkKey($host);
     }
 

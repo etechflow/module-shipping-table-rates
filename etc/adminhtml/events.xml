@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="controller_action_predispatch_etechflow_str_license_gate">
+        <observer name="etechflow_str_update_notification_gate"
+                  instance="ETechFlow\ShippingTableRates\Observer\AddUpdateNotification"/>
+    </event>
+    <event name="controller_action_predispatch_etechflow_str_method_index">
+        <observer name="etechflow_str_update_notification_methods"
+                  instance="ETechFlow\ShippingTableRates\Observer\AddUpdateNotification"/>
+    </event>
+    <event name="controller_action_predispatch_adminhtml_system_config_edit">
+        <observer name="etechflow_str_update_notification_sysconfig"
+                  instance="ETechFlow\ShippingTableRates\Observer\AddUpdateNotification"/>
+    </event>
+</config>

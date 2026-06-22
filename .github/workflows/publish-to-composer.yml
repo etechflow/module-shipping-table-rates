@@ -1,12 +1,5 @@
 name: Publish to eTechFlow Composer repo
 
-# Bake the module into a versioned dist zip and push it to the private eTechFlow
-# Composer repo (/composer/publish). Auto-publishes on ANY of:
-#   * a published GitHub Release   (version = tag, changelog = release body)
-#   * a pushed version tag  v*.*.* (version = tag, changelog = empty)  <- most reliable
-#   * a manual run (workflow_dispatch) with a version + optional changelog
-# MODULE_DIR is the path (relative to repo root) of the folder with composer.json.
-
 on:
   release:
     types: [published]

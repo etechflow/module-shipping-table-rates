@@ -4,6 +4,10 @@
     <update handle="styles"/>
     <body>
         <referenceContainer name="content">
+            <block class="ETechFlow\ShippingTableRates\Block\Adminhtml\UpdateNotice"
+                   name="etechflow_str_update_notice_gate"
+                   template="ETechFlow_ShippingTableRates::update-notice.phtml"
+                   cacheable="false" before="-"/>
             <block class="Magento\Backend\Block\Template"
                    name="etechflow.str.license.gate"
                    template="ETechFlow_ShippingTableRates::license/gate.phtml"/>

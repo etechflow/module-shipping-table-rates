@@ -1,0 +1,15 @@
+<?php
+/** @var \ETechFlow\ShippingTableRates\Block\Adminhtml\UpdateNotice $block */
+$update = $block->getUpdateInfo();
+if (!$update): return; endif;
+?>
+<div style="background:#fff8c5;border:1px solid #f0c36d;border-radius:4px;padding:12px 18px;margin:0 0 16px;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:20px;">&#9888;</span>
+    <div>
+        <strong><?= $block->escapeHtml(__('Shipping Table Rates %1 is available', $update['latest'])) ?></strong>
+        <?php if (!empty($update['notes'])): ?>
+            &mdash; <?= $block->escapeHtml($update['notes']) ?>
+        <?php endif; ?>
+        <br><code style="font-size:12px;"><?= $block->escapeHtml($block->getUpdateCommand()) ?></code>
+    </div>
+</div>
